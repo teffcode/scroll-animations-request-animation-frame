@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Ghibli</title>
+  <style>
+    h1 {
+      text-align: center;
+      font-size: 80px;
+      margin-top: 80px;
+    }
+
+    .photos-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .photos-container img {
+      width: 400px;
+      height: 300px;
+      object-fit: cover;
+      -webkit-box-shadow: 0 35px 20px #777;
+         -moz-box-shadow: 0 35px 20px #777;
+              box-shadow: 0 35px 20px #777;
+      transform: rotateZ(-4deg);
+      transition: transform 1s .25s ease-out,
+                  opacity .5s .25s ease-out;
+      will-change: transform, opacity;
+      opacity: 0;
+    }
+
+    .visible {
+      opacity: 1 !important;
+      transform: rotateZ(0deg) !important;
+    }
+  </style>
+</head>
+<body>
+  <h1>Studio Ghibli <br/> movies</h1>
+  <section id="movies" class="photos-container"></section>
+</body>
+<script>
+  const movies = document.getElementById('movies')
+  const BASE_API = 'https://ghibliapi.herokuapp.com/films'
+  const scroll = window.requestAnimationFrame
+
+  async function getMoviesInfo() {
+    const response = await fetch(BASE_API)
+    const moviesInfo = await response.json()
+    return moviesInfo
+  }
+
+  getMoviesInfo().then(moviesInfo => {
+    moviesInfo.map((movieInfo) => {
+      const h2 = document.createElement('h2')
+      const img = document.createElement('img')
+      h2.innerHTML = movieInfo.title
+      img.src = movieInfo.image
+      img.setAttribute('class', 'show')
+      movies.appendChild(h2)
+      movies.appendChild(img)
+    }) 
+  })
+
+  function isInViewport(element) {
+    const rectangle = element.getBoundingClientRect()
+    return rectangle.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+  }
+
+  function handleVisibility() {
+    const images = movies.querySelectorAll('.show')
+
+    for(let i = 0; i < images.length; i++) {
+      if (isInViewport(images[i])) {
+        images[i].classList.add("visible")
+      } else {
+        images[i].classList.remove("visible")
+      }
+    }
+    scroll(handleVisibility)
+  }
+
+  handleVisibility()
+
+</script>
+</html>
